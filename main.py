@@ -404,7 +404,7 @@ Values has a default value of 0,1.<br><br>
 Default value is 1.<br><br>
 Variable name and key must be filled in!<br><br>
 Add rows to add variables.<br><br>
-A reminder that keys can have modifiers, for example SHIFT p, or NO_ALT d. <br><br>
+For full key documentation, please see <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">here</a> <br><br>
 An empty visibility condition means that no if statement will be generated for it!<br><br>
 Use the test values to check for mesh visibility depending on your variable values and for any errors!<br><br>
 <b>Refreshing mesh names will not lose your conditions or variables!</b><br><br>
@@ -424,7 +424,7 @@ Values has a default value of 0,1.<br><br>
 Default value is 1.<br><br>
 Variable name and key must be filled in!<br><br>
 Add rows to add variables.<br><br>
-A reminder that keys can have modifiers, for example SHIFT p, or NO_ALT d. <br><br>
+For full key documentation, please see <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">here</a> <br><br>
 An empty visibility condition means that no if statement will be generated for it!<br><br>
 Use the test values to check for mesh visibility depending on your variable values and for any errors!<br><br>
 <b>Refreshing mesh names will not lose your conditions or variables!</b><br><br>
