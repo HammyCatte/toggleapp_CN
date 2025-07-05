@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QPushButton, QHBoxLayout, QMessageBox, QSpinBox, QHeaderView, QFileDialog, QComboBox
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QColor, QIcon
 import glob
 import os
 import re
@@ -103,6 +103,7 @@ class CharacterPartsEditor(QWidget):
 
         self.table1 = QTableWidget(0, 6)
         self.table2 = ReorderOnlyTableWidget(len(self.charaparts), 6)
+        self.setWindowIcon(QIcon('1-24c533cf.ico'))
         
         self.table1.setHorizontalHeaderLabels(["Name", "Ini Name", "Key", "Default Value", "Values", "Test Values"])
         top_layout = QHBoxLayout()
@@ -110,6 +111,12 @@ class CharacterPartsEditor(QWidget):
         open_btn = QPushButton("Open INI")
         open_btn.clicked.connect(self.open_ini_file)
         top_layout.addWidget(open_btn)
+        save_btn = QPushButton("Save INI template")
+        save_btn.clicked.connect(self.save_template)
+        top_layout.addWidget(save_btn)
+        load_btn = QPushButton("Load INI template")
+        load_btn.clicked.connect(self.load_template)
+        top_layout.addWidget(load_btn)
         help_btn = QPushButton("?")
         help_btn.setFixedSize(30, 30)
         help_btn.clicked.connect(self.show_help)
@@ -212,7 +219,157 @@ class CharacterPartsEditor(QWidget):
         self.table1.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.table2.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+    
+    def save_template(self):
+        file_name, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save Template As",
+            "",
+            "JSON Files (*.json);;All Files (*)"
+        )
 
+        if not file_name:
+            return  # User canceled
+
+        # Extract table1 data
+        table1_data = []
+        for row in range(self.table1.rowCount()):
+            row_data = {
+                "Name": self.table1.item(row, 0).text() if self.table1.item(row, 0) else "",
+                "IniName": self.table1.item(row, 1).text() if self.table1.item(row, 1) else "",
+                "Key": self.table1.item(row, 2).text() if self.table1.item(row, 2) else "",
+                "DefaultValue": self.table1.item(row, 3).text() if self.table1.item(row, 3) else "",
+                "Values": self.table1.item(row, 4).text() if self.table1.item(row, 4) else "",
+                "TestValue": self.table1.cellWidget(row, 5).value() if isinstance(self.table1.cellWidget(row, 5), QSpinBox) else 0
+            }
+            table1_data.append(row_data)
+
+        # Extract all 6 columns from table2
+        table2_data = []
+        for row in range(self.table2.rowCount()):
+            row_data = {
+                "MeshName": self.table2.item(row, 0).text() if self.table2.item(row, 0) else "",
+                "IniName": self.table2.item(row, 1).text() if self.table2.item(row, 1) else "",
+                "VisibilityCondition": self.table2.item(row, 2).text() if self.table2.item(row, 2) else "",
+                "Visible": self.table2.item(row, 3).text() if self.table2.item(row, 3) else "",
+                "ConditionType": "",
+                "EndifIncluded": False
+            }
+
+            # Column 4 (ComboBox)
+            combo = self.table2.cellWidget(row, 4)
+            if isinstance(combo, QComboBox):
+                row_data["ConditionType"] = combo.currentText()
+
+            # Column 5 (Checkbox)
+            checkbox_item = self.table2.item(row, 5)
+            if checkbox_item is not None:
+                row_data["EndifIncluded"] = checkbox_item.checkState() == Qt.CheckState.Checked
+
+            table2_data.append(row_data)
+
+        # Combine into JSON
+        template_data = {
+            "table1": table1_data,
+            "table2": table2_data
+        }
+
+        # Save to JSON
+        import json
+        with open(file_name, "w", encoding="utf-8") as f:
+            json.dump(template_data, f, indent=4)
+
+        QMessageBox.information(self, "Template Saved", f"Template saved to:\n{file_name}")
+
+    
+    def load_template(self):
+        import json
+
+        file_name, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load Template",
+            "",
+            "JSON Files (*.json);;All Files (*)"
+        )
+
+        if not file_name:
+            return  # User canceled
+
+        try:
+            with open(file_name, "r", encoding="utf-8") as f:
+                template_data = json.load(f)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to load template:\n{e}")
+            return
+
+        # -----------------------------
+        # Load table1
+        # -----------------------------
+        self.table1.blockSignals(True)
+        self.table2.blockSignals(True)
+        self.table1.setRowCount(0)
+        for row_data in template_data.get("table1", []):
+            row = self.table1.rowCount()
+            self.table1.insertRow(row)
+            self.table1.setItem(row, 0, QTableWidgetItem(row_data.get("Name", "")))
+            self.table1.setItem(row, 1, QTableWidgetItem(row_data.get("IniName", "")))
+            self.table1.setItem(row, 2, QTableWidgetItem(row_data.get("Key", "")))
+            self.table1.setItem(row, 3, QTableWidgetItem(row_data.get("DefaultValue", "")))
+            self.table1.setItem(row, 4, QTableWidgetItem(row_data.get("Values", "")))
+
+            spin = QSpinBox()
+            spin.setMinimum(0)
+            spin.setMaximum(999)
+            spin.setValue(row_data.get("TestValue", 0))
+            spin.valueChanged.connect(lambda value, r=row: self.on_spinbox_changed(r, value))
+            self.table1.setCellWidget(row, 5, spin)
+        self.set_readOnly(self.table1, 1)
+        self.table1.blockSignals(False)
+
+        table2Rows = []
+        for i in range(self.table2.rowCount()):
+            table2Rows.append(self.table2.item(i, 0).text())
+
+        # -----------------------------
+        # Load table2
+        # -----------------------------
+        #self.table2.setRowCount(0)
+        row_index=0
+        for row_data in template_data.get("table2", []):
+            # row = self.table2.rowCount()
+            
+            if row_data.get("MeshName", "") in table2Rows:
+                #self.table2.insertRow(row)
+                row_index = table2Rows.index(row_data.get("MeshName", ""))
+                #print(row_index)
+                self.table2.setItem(row_index, 0, QTableWidgetItem(row_data.get("MeshName", "")))
+                self.table2.setItem(row_index, 1, QTableWidgetItem(row_data.get("IniName", "")))
+                self.table2.setItem(row_index, 2, QTableWidgetItem(row_data.get("VisibilityCondition", "")))
+                self.table2.setItem(row_index, 3, QTableWidgetItem(row_data.get("Visible", "")))
+
+                # Column 4: ComboBox
+                combo = QComboBox()
+                combo.addItems(["if", "else", "else if", "endif"])
+                combo.setCurrentText(row_data.get("ConditionType", "if"))
+                self.table2.setCellWidget(row_index, 4, combo)
+
+                # Column 5: Checkbox
+                checkbox_item = QTableWidgetItem()
+                checkbox_item.setFlags(checkbox_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                checkbox_item.setCheckState(Qt.CheckState.Checked if row_data.get("EndifIncluded", False) else Qt.CheckState.Unchecked)
+                self.table2.setItem(row_index, 5, checkbox_item)
+                row_index+=1
+
+        # Make readonly columns readonly again
+        self.set_readOnly(self.table2, 0)
+        self.set_readOnly(self.table2, 1)
+        self.set_readOnly(self.table2, 3)
+        self.table2.blockSignals(False)
+
+        QMessageBox.information(self, "Template Loaded", f"Template loaded from:\n{file_name}")
+
+
+        
     def toggle_expert_mode(self):
         if self.expert_mode_checkbox.isChecked():
             self.expert_mode_checkbox.setText("Expert Mode: ON")
@@ -288,7 +445,8 @@ There are 4 condition types: if, else if, else, and endif.<br><br>
 <b>endif</b> writes only the endif after the mesh line. It has no conditions. <br>USE THIS AT THE END OF YOUR COMPONENT BLOCKS.<br><br>
 else and endif do not have conditions in any scenario.<br><br>
 endifs are not generated after each condition in this mode,<br>
-if you want to generate an endif please select the checkbox in endif included.<br>
+if you want to generate an endif please select the checkbox in endif included.<br><br>
+Templates do not support mesh reordering!<br>
 </center></html>''')
 
     def add_row_table1(self, checked=False, default_name=""):
@@ -765,6 +923,8 @@ if you want to generate an endif please select the checkbox in endif included.<b
             existing_keys.clear()
             charaparts.clear()
             existing_conditions.clear()
+            existing_combo_values.clear()
+            existing_endifs.clear()
 
             # Re-extract everything
             extract_charaparts_from_ini()
@@ -802,7 +962,7 @@ def find_file():
     except FileNotFoundError:
         print(f"Error: '{file_name}' not found.")
 def extract_charaparts_from_ini():
-    global file_name, charaname, lines, charaparts, existing_conditions, existing_variables, existing_defaults, existing_keys, existing_values
+    global file_name, charaname, lines, charaparts, existing_conditions, existing_variables, existing_defaults, existing_keys, existing_values, existing_combo_values, existing_endifs
     searching = False
 
     for i in range(len(lines)):
