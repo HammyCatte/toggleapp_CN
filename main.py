@@ -632,16 +632,16 @@ else和endif在任何情况下都没有条件。<br><br>
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.Yes:
-                with open(filename, "w") as file2:
+                with open(filename, "w", encoding="utf-8") as file2:
                     for i, line in enumerate(lines):      
                         file2.write(line)
         else:
-            with open(filename, "w") as file2:
+            with open(filename, "w", encoding="utf-8") as file2:
                 for i, line in enumerate(lines):      
                     file2.write(line)
         print(lines)
         try:
-            with open(filename) as file2:
+            with open(filename, encoding="utf-8") as file2:
                 lines = file2.readlines()
         except FileNotFoundError:
             print(f"错误: 未找到'{filename}'")
@@ -686,7 +686,7 @@ else和endif在任何情况下都没有条件。<br><br>
         global skip
         global activeWritten
         activeWritten = False
-        with open(filetoo+f'{charaname}.ini', "w") as file:
+        with open(filetoo+f'{charaname}.ini', "w", encoding="utf-8") as file:
             print("opening")
             for i, line in enumerate(lines):
                 if toggleWrite:
@@ -904,7 +904,7 @@ else和endif在任何情况下都没有条件。<br><br>
         if new_file:
             #print(new_file)
             try:
-                with open(new_file) as f:
+                with open(new_file, encoding="utf-8") as f:
                     filepath=f.name
                     lines = f.readlines()
             except FileNotFoundError:
@@ -955,7 +955,7 @@ def find_file():
 
     
     try:
-        with open(file_name) as file2:
+        with open(file_name, encoding="utf-8") as file2:
             filepath=file2.name
             #print(file2.name)
             lines = file2.readlines()
@@ -1035,7 +1035,7 @@ if __name__ == "__main__":
     #print(charaname)
 
     try:
-        with open(file_name) as file2:
+        with open(file_name, encoding="utf-8") as file2:
             filepath=file2.name
             print(file2.name)
             lines = file2.readlines()
