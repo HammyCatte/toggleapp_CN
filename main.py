@@ -10,6 +10,24 @@ import re
 import tkinter as tk
 from tkinter import filedialog
 
+import chardet
+
+def smart_open(file_path, mode="r"):
+    """
+    自动判断编码打开文件，默认文本模式，返回文件对象。
+    只能用于读取文本文件。
+    """
+    if "b" in mode or "w" in mode or "a" in mode:
+        # 写入、追加、二进制模式，不动编码，直接返回标准open
+        return open(file_path, mode, encoding="utf-8") if "b" not in mode else open(file_path, mode)
+
+    with open(file_path, "rb") as f:
+        raw_data = f.read(2048)
+    result = chardet.detect(raw_data)
+    encoding = result["encoding"] if result["encoding"] else "utf-8"
+
+    return open(file_path, mode, encoding=encoding)
+
 charaparts = []
 file_name = ""
 charaname = file_name[:-4]       
@@ -94,7 +112,7 @@ class CharacterPartsEditor(QWidget):
         self.existing_defaults = existing_defaults
         self.setMinimumWidth(1000)
         self.setMinimumHeight(700)
-        self.setWindowTitle("终极组件切换工具")
+        self.setWindowTitle("组件切换工具")
         self.expertMode = False
         self.init_ui()
 
@@ -210,8 +228,8 @@ class CharacterPartsEditor(QWidget):
         refresh_mesh_btn.clicked.connect(self.refresh_mesh_names)
         layout.addWidget(refresh_mesh_btn)
         self.table1.horizontalHeader().setStretchLastSection(True)
-        # 专业模式切换
-        self.expert_mode_checkbox = QPushButton("专业模式: 关闭")
+        # 高级模式切换
+        self.expert_mode_checkbox = QPushButton("高级模式: 关闭")
         self.expert_mode_checkbox.setCheckable(True)
         self.expert_mode_checkbox.setChecked(False)
         self.expert_mode_checkbox.clicked.connect(self.toggle_expert_mode)
@@ -296,7 +314,7 @@ class CharacterPartsEditor(QWidget):
             return  # 用户取消
 
         try:
-            with open(file_name, "r", encoding="utf-8") as f:
+            with smart_open(file_name) as f:
                 template_data = json.load(f)
         except Exception as e:
             QMessageBox.critical(self, "错误", f"加载模板失败:\n{e}")
@@ -372,7 +390,7 @@ class CharacterPartsEditor(QWidget):
         
     def toggle_expert_mode(self):
         if self.expert_mode_checkbox.isChecked():
-            self.expert_mode_checkbox.setText("专业模式: 开启")
+            self.expert_mode_checkbox.setText("高级模式: 开启")
             self.table2.setColumnHidden(4, False)  # 显示"条件类型"列
             self.table2.setColumnHidden(5, False)
             self.expertMode = True
@@ -382,9 +400,9 @@ class CharacterPartsEditor(QWidget):
             self.table2.setDropIndicatorShown(True)
             self.table2.viewport().setAcceptDrops(True)
             self.table2.setDefaultDropAction(Qt.DropAction.MoveAction)
-            print("专业模式已启用")
+            print("高级模式已启用")
         else:
-            self.expert_mode_checkbox.setText("专业模式: 关闭")
+            self.expert_mode_checkbox.setText("高级模式: 关闭")
             self.table2.setColumnHidden(4, True)  # 隐藏"条件类型"列
             self.table2.setColumnHidden(5, True)
             self.expertMode = False
@@ -394,50 +412,50 @@ class CharacterPartsEditor(QWidget):
             self.table2.setDropIndicatorShown(False)
             self.table2.viewport().setAcceptDrops(False)
             self.table2.setDefaultDropAction(Qt.DropAction.IgnoreAction)
-            print("专业模式已禁用")
+            print("高级模式已禁用")
         
     def show_help(self):
         if not self.expertMode:
             QMessageBox.information(self, "帮助", '''<html><center>
-<h2>高级组件切换助手：</h2>
-可选值默认值为0,1。<br><br>
-默认值为1。<br><br>
-变量名称和快捷键必须填写！<br><br>
-添加行以添加变量。<br><br>
+<h2>使用帮助：</h2>
+变量的名称和快捷键必须填写！<br><br>
 完整的快捷键文档请参考 <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">这里</a> <br><br>
-空可见性条件表示不会为其生成if语句！<br><br>
-使用测试值根据变量值检查网格可见性并查找错误！<br><br>
-<b>刷新网格名称不会丢失您的条件或变量！</b><br><br>
+默认值默认为1。<br><br>
+可选值默认为0,1。<br><br>
+测试值可用来测试网格可见性以检查错误。<br><br>
+点击添加行可添加变量。<br><br>
+可见性条件为空表示不会为其生成if语句。<br><br>
+<b>刷新网格名称不会丢失变量和条件。</b><br><br>
 <br>
 条件提示：<br>
-<b>变量始终以$开头！</b><br>
+<b>变量必须以$开头！</b><br>
 && -> 与<br>
 || -> 或<br>
 == -> 等于<br>
 != -> 不等于<br>
-所有数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=<br>
+可用的数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=<br>
 </center></html>''')
         else:
             QMessageBox.information(self, "帮助", '''<html><center>
-<h2>高级组件切换助手：</h2>
-可选值默认值为0,1。<br><br>
-默认值为1。<br><br>
-变量名称和快捷键必须填写！<br><br>
-添加行以添加变量。<br><br>
+<h2>使用帮助：</h2>
+变量的名称和快捷键必须填写！<br><br>
 完整的快捷键文档请参考 <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">这里</a> <br><br>
-空可见性条件表示不会为其生成if语句！<br><br>
-使用测试值根据变量值检查网格可见性并查找错误！<br><br>
-<b>刷新网格名称不会丢失您的条件或变量！</b><br><br>
+默认值默认为1。<br><br>
+可选值默认为0,1。<br><br>
+测试值可用来测试网格可见性以检查错误。<br><br>
+点击添加行可添加变量。<br><br>
+可见性条件为空表示不会为其生成if语句。<br><br>
+<b>刷新网格名称不会丢失变量和条件。</b><br><br>
 <br>
 条件提示：<br>
-<b>变量始终以$开头！</b><br>
+<b>变量必须以$开头！</b><br>
 && -> 与<br>
 || -> 或<br>
 == -> 等于<br>
 != -> 不等于<br>
-所有数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=
-<h3>专业模式控制：</h3>
-拖放行以更改网格顺序。<br><br>
+可用的数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=<br>
+<h3>高级模式功能：</h3>
+拖动行可以更改网格顺序。<br><br>
 有4种条件类型：if, else if, else, 和 endif。<br><br>
 <b>if</b>是普通的if语句，带条件。<br>在组件块开头使用此类型。<br><br>
 <b>else if</b>是备用的if语句，用作次要条件。<br>不要以此开始组件块<br><br>
@@ -445,7 +463,7 @@ class CharacterPartsEditor(QWidget):
 <b>endif</b>仅在网格行后写入endif。没有条件。<br>在组件块末尾使用此类型。<br><br>
 else和endif在任何情况下都没有条件。<br><br>
 在此模式下，每个条件后不会生成endif，<br>
-如果要生成endif，请在"包含endif"中选择复选框。<br><br>
+如果要生成endif，请勾选"包含endif"复选框。<br><br>
 模板不支持网格重新排序！<br>
 </center></html>''')
 
@@ -641,7 +659,7 @@ else和endif在任何情况下都没有条件。<br><br>
                     file2.write(line)
         print(lines)
         try:
-            with open(filename, encoding="utf-8") as file2:
+            with smart_open(filename) as file2:
                 lines = file2.readlines()
         except FileNotFoundError:
             print(f"错误: 未找到'{filename}'")
@@ -904,7 +922,7 @@ else和endif在任何情况下都没有条件。<br><br>
         if new_file:
             #print(new_file)
             try:
-                with open(new_file, encoding="utf-8") as f:
+                with smart_open(new_file) as f:
                     filepath=f.name
                     lines = f.readlines()
             except FileNotFoundError:
@@ -955,7 +973,7 @@ def find_file():
 
     
     try:
-        with open(file_name, encoding="utf-8") as file2:
+        with smart_open(file_name) as file2:
             filepath=file2.name
             #print(file2.name)
             lines = file2.readlines()
@@ -1035,7 +1053,7 @@ if __name__ == "__main__":
     #print(charaname)
 
     try:
-        with open(file_name, encoding="utf-8") as file2:
+        with smart_open(file_name) as file2:
             filepath=file2.name
             print(file2.name)
             lines = file2.readlines()
