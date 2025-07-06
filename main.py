@@ -46,7 +46,7 @@ class ReorderOnlyTableWidget(QTableWidget):
         if source_row == drop_row or source_row < 0:
             return
 
-        # Safely clone source row data
+        # 安全克隆源行数据
         items = []
         for c in range(self.columnCount()):
             item = self.item(source_row, c)
@@ -55,7 +55,7 @@ class ReorderOnlyTableWidget(QTableWidget):
             else:
                 items.append(QTableWidgetItem(""))
 
-        # Remember widgets (like combo and checkbox)
+        # 记住小部件（如组合框和复选框）
         combo_value = None
         checkbox_state = None
         if self.cellWidget(source_row, 4):
@@ -94,7 +94,7 @@ class CharacterPartsEditor(QWidget):
         self.existing_defaults = existing_defaults
         self.setMinimumWidth(1000)
         self.setMinimumHeight(700)
-        self.setWindowTitle("Ultimate Component Toggle Tool")
+        self.setWindowTitle("终极组件切换工具")
         self.expertMode = False
         self.init_ui()
 
@@ -105,16 +105,16 @@ class CharacterPartsEditor(QWidget):
         self.table2 = ReorderOnlyTableWidget(len(self.charaparts), 6)
         self.setWindowIcon(QIcon('1-24c533cf.ico'))
         
-        self.table1.setHorizontalHeaderLabels(["Name", "Ini Name", "Key", "Default Value", "Values", "Test Values"])
+        self.table1.setHorizontalHeaderLabels(["名称", "INI名称", "快捷键", "默认值", "可选值", "测试值"])
         top_layout = QHBoxLayout()
-        top_layout.addStretch()  # pushes the button to the right
-        open_btn = QPushButton("Open INI")
+        top_layout.addStretch()  # 将按钮推到右侧
+        open_btn = QPushButton("打开INI")
         open_btn.clicked.connect(self.open_ini_file)
         top_layout.addWidget(open_btn)
-        save_btn = QPushButton("Save INI template")
+        save_btn = QPushButton("保存模板")
         save_btn.clicked.connect(self.save_template)
         top_layout.addWidget(save_btn)
-        load_btn = QPushButton("Load INI template")
+        load_btn = QPushButton("加载模板")
         load_btn.clicked.connect(self.load_template)
         top_layout.addWidget(load_btn)
         help_btn = QPushButton("?")
@@ -124,9 +124,9 @@ class CharacterPartsEditor(QWidget):
         layout.addLayout(top_layout)
         layout.addWidget(self.table1)
 
-        # Add one default row
+        # 添加一个默认行
         if len(self.existing_variables)==0:
-            self.add_row_table1("Example")
+            self.add_row_table1("示例")
         for i, variable_name in enumerate(self.existing_variables):
             self.table1.insertRow(i)
 #            print(variable_name)
@@ -145,17 +145,17 @@ class CharacterPartsEditor(QWidget):
             
             spin = QSpinBox()
             spin.setMinimum(0)
-            spin.setMaximum(999)  # or any max you want
+            spin.setMaximum(999)  # 或任意最大值
             spin.setValue(0)
             spin.valueChanged.connect(lambda value, row=i: self.on_spinbox_changed(row, value))
-            self.table1.setCellWidget(i, 5, spin)  # put spinner in column 0
+            self.table1.setCellWidget(i, 5, spin)  # 将微调框放在第5列
 
-        self.set_readOnly(self.table1, 1)  # Make column 1 read-only
+        self.set_readOnly(self.table1, 1)  # 使第1列只读
 
-        # Buttons for Table 1
+        # 表格1的按钮
         btn_layout1 = QHBoxLayout()
-        add_btn1 = QPushButton("Add Row")
-        remove_btn1 = QPushButton("Remove Selected Row")
+        add_btn1 = QPushButton("添加行")
+        remove_btn1 = QPushButton("删除选中行")
         add_btn1.clicked.connect(self.add_row_table1)
         remove_btn1.clicked.connect(self.remove_row_table1)
         btn_layout1.addWidget(add_btn1)
@@ -164,8 +164,8 @@ class CharacterPartsEditor(QWidget):
 
         self.table1.itemChanged.connect(self.on_table1_item_changed)
 
-        # Table 2
-        self.table2.setHorizontalHeaderLabels(["Mesh Name", "Ini Name", "Visibility Condition", "Visible", "Condition Type", "endif included"])
+        # 表格2
+        self.table2.setHorizontalHeaderLabels(["网格名称", "INI名称", "可见性条件", "可见", "条件类型", "包含endif"])
         self.table2.setColumnHidden(4, True)
         self.table2.setColumnHidden(5, True)
         self.table2.setColumnWidth(2, 500)
@@ -182,7 +182,7 @@ class CharacterPartsEditor(QWidget):
             self.table2.setCellWidget(i, 4, combo)
             checkbox_item = QTableWidgetItem()
             checkbox_item.setFlags(checkbox_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-            checkbox_item.setCheckState(Qt.CheckState.Checked)  # or Unchecked
+            checkbox_item.setCheckState(Qt.CheckState.Checked)  # 或未选中
             if len(existing_combo_values)==len(charaparts):
                 combo = self.table2.cellWidget(i, 4)
                 if isinstance(combo, QComboBox):
@@ -191,27 +191,27 @@ class CharacterPartsEditor(QWidget):
 
             if len(existing_endifs)==len(charaparts):
                 if existing_endifs[i]:
-                    checkbox_item.setCheckState(Qt.CheckState.Checked)  # or Unchecked
+                    checkbox_item.setCheckState(Qt.CheckState.Checked)  # 或未选中
                 else:
-                    checkbox_item.setCheckState(Qt.CheckState.Unchecked)  # or Unchecked
+                    checkbox_item.setCheckState(Qt.CheckState.Unchecked)  # 或未选中
 
 
         self.table2.resizeColumnToContents(0)
         self.table2.resizeColumnToContents(1)
-        self.set_readOnly(self.table2, 0)  # Re-apply readonly after adding a row
-        self.set_readOnly(self.table2, 1)  # Re-apply readonly after adding a row
-        self.set_readOnly(self.table2, 3)  # Re-apply readonly after adding a row
+        self.set_readOnly(self.table2, 0)  # 添加行后重新应用只读
+        self.set_readOnly(self.table2, 1)  # 添加行后重新应用只读
+        self.set_readOnly(self.table2, 3)  # 添加行后重新应用只读
         layout.addWidget(self.table2)
         self.table2.itemChanged.connect(self.on_table2_item_changed)
-        update_btn = QPushButton("Update INI")
+        update_btn = QPushButton("更新INI")
         update_btn.clicked.connect(self.update_ini)
         layout.addWidget(update_btn)
-        refresh_mesh_btn = QPushButton("Refresh Mesh Names")
+        refresh_mesh_btn = QPushButton("刷新网格名称")
         refresh_mesh_btn.clicked.connect(self.refresh_mesh_names)
         layout.addWidget(refresh_mesh_btn)
         self.table1.horizontalHeader().setStretchLastSection(True)
-        # Expert Mode Toggle
-        self.expert_mode_checkbox = QPushButton("Expert Mode: OFF")
+        # 专业模式切换
+        self.expert_mode_checkbox = QPushButton("专业模式: 关闭")
         self.expert_mode_checkbox.setCheckable(True)
         self.expert_mode_checkbox.setChecked(False)
         self.expert_mode_checkbox.clicked.connect(self.toggle_expert_mode)
@@ -223,63 +223,63 @@ class CharacterPartsEditor(QWidget):
     def save_template(self):
         file_name, _ = QFileDialog.getSaveFileName(
             self,
-            "Save Template As",
+            "保存模板",
             "",
-            "JSON Files (*.json);;All Files (*)"
+            "JSON文件 (*.json);;所有文件 (*)"
         )
 
         if not file_name:
-            return  # User canceled
+            return  # 用户取消
 
-        # Extract table1 data
+        # 提取表格1数据
         table1_data = []
         for row in range(self.table1.rowCount()):
             row_data = {
-                "Name": self.table1.item(row, 0).text() if self.table1.item(row, 0) else "",
-                "IniName": self.table1.item(row, 1).text() if self.table1.item(row, 1) else "",
-                "Key": self.table1.item(row, 2).text() if self.table1.item(row, 2) else "",
-                "DefaultValue": self.table1.item(row, 3).text() if self.table1.item(row, 3) else "",
-                "Values": self.table1.item(row, 4).text() if self.table1.item(row, 4) else "",
-                "TestValue": self.table1.cellWidget(row, 5).value() if isinstance(self.table1.cellWidget(row, 5), QSpinBox) else 0
+                "名称": self.table1.item(row, 0).text() if self.table1.item(row, 0) else "",
+                "INI名称": self.table1.item(row, 1).text() if self.table1.item(row, 1) else "",
+                "快捷键": self.table1.item(row, 2).text() if self.table1.item(row, 2) else "",
+                "默认值": self.table1.item(row, 3).text() if self.table1.item(row, 3) else "",
+                "可选值": self.table1.item(row, 4).text() if self.table1.item(row, 4) else "",
+                "测试值": self.table1.cellWidget(row, 5).value() if isinstance(self.table1.cellWidget(row, 5), QSpinBox) else 0
             }
             table1_data.append(row_data)
 
-        # Extract all 6 columns from table2
+        # 从表格2提取所有6列
         table2_data = []
         for row in range(self.table2.rowCount()):
             row_data = {
-                "MeshName": self.table2.item(row, 0).text() if self.table2.item(row, 0) else "",
-                "IniName": self.table2.item(row, 1).text() if self.table2.item(row, 1) else "",
-                "VisibilityCondition": self.table2.item(row, 2).text() if self.table2.item(row, 2) else "",
-                "Visible": self.table2.item(row, 3).text() if self.table2.item(row, 3) else "",
-                "ConditionType": "",
-                "EndifIncluded": False
+                "网格名称": self.table2.item(row, 0).text() if self.table2.item(row, 0) else "",
+                "INI名称": self.table2.item(row, 1).text() if self.table2.item(row, 1) else "",
+                "可见性条件": self.table2.item(row, 2).text() if self.table2.item(row, 2) else "",
+                "可见": self.table2.item(row, 3).text() if self.table2.item(row, 3) else "",
+                "条件类型": "",
+                "包含endif": False
             }
 
-            # Column 4 (ComboBox)
+            # 第4列（组合框）
             combo = self.table2.cellWidget(row, 4)
             if isinstance(combo, QComboBox):
-                row_data["ConditionType"] = combo.currentText()
+                row_data["条件类型"] = combo.currentText()
 
-            # Column 5 (Checkbox)
+            # 第5列（复选框）
             checkbox_item = self.table2.item(row, 5)
             if checkbox_item is not None:
-                row_data["EndifIncluded"] = checkbox_item.checkState() == Qt.CheckState.Checked
+                row_data["包含endif"] = checkbox_item.checkState() == Qt.CheckState.Checked
 
             table2_data.append(row_data)
 
-        # Combine into JSON
+        # 合并为JSON
         template_data = {
-            "table1": table1_data,
-            "table2": table2_data
+            "表格1": table1_data,
+            "表格2": table2_data
         }
 
-        # Save to JSON
+        # 保存为JSON
         import json
         with open(file_name, "w", encoding="utf-8") as f:
             json.dump(template_data, f, indent=4)
 
-        QMessageBox.information(self, "Template Saved", f"Template saved to:\n{file_name}")
+        QMessageBox.information(self, "模板已保存", f"模板已保存至:\n{file_name}")
 
     
     def load_template(self):
@@ -287,40 +287,40 @@ class CharacterPartsEditor(QWidget):
 
         file_name, _ = QFileDialog.getOpenFileName(
             self,
-            "Load Template",
+            "加载模板",
             "",
-            "JSON Files (*.json);;All Files (*)"
+            "JSON文件 (*.json);;所有文件 (*)"
         )
 
         if not file_name:
-            return  # User canceled
+            return  # 用户取消
 
         try:
             with open(file_name, "r", encoding="utf-8") as f:
                 template_data = json.load(f)
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to load template:\n{e}")
+            QMessageBox.critical(self, "错误", f"加载模板失败:\n{e}")
             return
 
         # -----------------------------
-        # Load table1
+        # 加载表格1
         # -----------------------------
         self.table1.blockSignals(True)
         self.table2.blockSignals(True)
         self.table1.setRowCount(0)
-        for row_data in template_data.get("table1", []):
+        for row_data in template_data.get("表格1", []):
             row = self.table1.rowCount()
             self.table1.insertRow(row)
-            self.table1.setItem(row, 0, QTableWidgetItem(row_data.get("Name", "")))
-            self.table1.setItem(row, 1, QTableWidgetItem(row_data.get("IniName", "")))
-            self.table1.setItem(row, 2, QTableWidgetItem(row_data.get("Key", "")))
-            self.table1.setItem(row, 3, QTableWidgetItem(row_data.get("DefaultValue", "")))
-            self.table1.setItem(row, 4, QTableWidgetItem(row_data.get("Values", "")))
+            self.table1.setItem(row, 0, QTableWidgetItem(row_data.get("名称", "")))
+            self.table1.setItem(row, 1, QTableWidgetItem(row_data.get("INI名称", "")))
+            self.table1.setItem(row, 2, QTableWidgetItem(row_data.get("快捷键", "")))
+            self.table1.setItem(row, 3, QTableWidgetItem(row_data.get("默认值", "")))
+            self.table1.setItem(row, 4, QTableWidgetItem(row_data.get("可选值", "")))
 
             spin = QSpinBox()
             spin.setMinimum(0)
             spin.setMaximum(999)
-            spin.setValue(row_data.get("TestValue", 0))
+            spin.setValue(row_data.get("测试值", 0))
             spin.valueChanged.connect(lambda value, r=row: self.on_spinbox_changed(r, value))
             self.table1.setCellWidget(row, 5, spin)
         self.set_readOnly(self.table1, 1)
@@ -331,49 +331,49 @@ class CharacterPartsEditor(QWidget):
             table2Rows.append(self.table2.item(i, 0).text())
 
         # -----------------------------
-        # Load table2
+        # 加载表格2
         # -----------------------------
         #self.table2.setRowCount(0)
         row_index=0
-        for row_data in template_data.get("table2", []):
+        for row_data in template_data.get("表格2", []):
             # row = self.table2.rowCount()
-            
-            if row_data.get("MeshName", "") in table2Rows:
-                #self.table2.insertRow(row)
-                row_index = table2Rows.index(row_data.get("MeshName", ""))
-                #print(row_index)
-                self.table2.setItem(row_index, 0, QTableWidgetItem(row_data.get("MeshName", "")))
-                self.table2.setItem(row_index, 1, QTableWidgetItem(row_data.get("IniName", "")))
-                self.table2.setItem(row_index, 2, QTableWidgetItem(row_data.get("VisibilityCondition", "")))
-                self.table2.setItem(row_index, 3, QTableWidgetItem(row_data.get("Visible", "")))
 
-                # Column 4: ComboBox
+            if row_data.get("网格名称", "") in table2Rows:
+                #self.table2.insertRow(row)
+                row_index = table2Rows.index(row_data.get("网格名称", ""))
+                #print(row_index)
+                self.table2.setItem(row_index, 0, QTableWidgetItem(row_data.get("网格名称", "")))
+                self.table2.setItem(row_index, 1, QTableWidgetItem(row_data.get("INI名称", "")))
+                self.table2.setItem(row_index, 2, QTableWidgetItem(row_data.get("可见性条件", "")))
+                self.table2.setItem(row_index, 3, QTableWidgetItem(row_data.get("可见", "")))
+
+                # 第4列: 组合框
                 combo = QComboBox()
                 combo.addItems(["if", "else", "else if", "endif"])
-                combo.setCurrentText(row_data.get("ConditionType", "if"))
+                combo.setCurrentText(row_data.get("条件类型", "if"))
                 self.table2.setCellWidget(row_index, 4, combo)
 
-                # Column 5: Checkbox
+                # 第5列: 复选框
                 checkbox_item = QTableWidgetItem()
                 checkbox_item.setFlags(checkbox_item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
-                checkbox_item.setCheckState(Qt.CheckState.Checked if row_data.get("EndifIncluded", False) else Qt.CheckState.Unchecked)
+                checkbox_item.setCheckState(Qt.CheckState.Checked if row_data.get("包含endif", False) else Qt.CheckState.Unchecked)
                 self.table2.setItem(row_index, 5, checkbox_item)
                 row_index+=1
 
-        # Make readonly columns readonly again
+        # 重新设置只读列
         self.set_readOnly(self.table2, 0)
         self.set_readOnly(self.table2, 1)
         self.set_readOnly(self.table2, 3)
         self.table2.blockSignals(False)
 
-        QMessageBox.information(self, "Template Loaded", f"Template loaded from:\n{file_name}")
+        QMessageBox.information(self, "模板已加载", f"模板已从以下位置加载:\n{file_name}")
 
 
         
     def toggle_expert_mode(self):
         if self.expert_mode_checkbox.isChecked():
-            self.expert_mode_checkbox.setText("Expert Mode: ON")
-            self.table2.setColumnHidden(4, False)  # Show the "Condition Type" column
+            self.expert_mode_checkbox.setText("专业模式: 开启")
+            self.table2.setColumnHidden(4, False)  # 显示"条件类型"列
             self.table2.setColumnHidden(5, False)
             self.expertMode = True
             self.table2.setDragDropMode(QTableWidget.DragDropMode.InternalMove)
@@ -382,10 +382,10 @@ class CharacterPartsEditor(QWidget):
             self.table2.setDropIndicatorShown(True)
             self.table2.viewport().setAcceptDrops(True)
             self.table2.setDefaultDropAction(Qt.DropAction.MoveAction)
-            print("Expert mode enabled")
+            print("专业模式已启用")
         else:
-            self.expert_mode_checkbox.setText("Expert Mode: OFF")
-            self.table2.setColumnHidden(4, True)  # Hide the "Condition Type" column
+            self.expert_mode_checkbox.setText("专业模式: 关闭")
+            self.table2.setColumnHidden(4, True)  # 隐藏"条件类型"列
             self.table2.setColumnHidden(5, True)
             self.expertMode = False
             self.table2.setDragDropMode(QTableWidget.DragDropMode.NoDragDrop)
@@ -394,59 +394,59 @@ class CharacterPartsEditor(QWidget):
             self.table2.setDropIndicatorShown(False)
             self.table2.viewport().setAcceptDrops(False)
             self.table2.setDefaultDropAction(Qt.DropAction.IgnoreAction)
-            print("Expert mode disabled")
+            print("专业模式已禁用")
         
     def show_help(self):
         if not self.expertMode:
-            QMessageBox.information(self, "Help", '''<html><center>
-<h2>Ultimate Component Toggle Helper:</h2>
-Values has a default value of 0,1.<br><br>
-Default value is 1.<br><br>
-Variable name and key must be filled in!<br><br>
-Add rows to add variables.<br><br>
-For full key documentation, please see <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">here</a> <br><br>
-An empty visibility condition means that no if statement will be generated for it!<br><br>
-Use the test values to check for mesh visibility depending on your variable values and for any errors!<br><br>
-<b>Refreshing mesh names will not lose your conditions or variables!</b><br><br>
+            QMessageBox.information(self, "帮助", '''<html><center>
+<h2>高级组件切换助手：</h2>
+可选值默认值为0,1。<br><br>
+默认值为1。<br><br>
+变量名称和快捷键必须填写！<br><br>
+添加行以添加变量。<br><br>
+完整的快捷键文档请参考 <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">这里</a> <br><br>
+空可见性条件表示不会为其生成if语句！<br><br>
+使用测试值根据变量值检查网格可见性并查找错误！<br><br>
+<b>刷新网格名称不会丢失您的条件或变量！</b><br><br>
 <br>
-Condition tips:<br>
-<b>Always start variables with $!</b><br>
-&& -> and<br>
-|| -> or<br>
-== -> Equals<br>
-!= -> Not equal<br>
-All math symbols: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=<br>
+条件提示：<br>
+<b>变量始终以$开头！</b><br>
+&& -> 与<br>
+|| -> 或<br>
+== -> 等于<br>
+!= -> 不等于<br>
+所有数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=<br>
 </center></html>''')
         else:
-            QMessageBox.information(self, "Help", '''<html><center>
-<h2>Ultimate Component Toggle Helper:</h2>
-Values has a default value of 0,1.<br><br>
-Default value is 1.<br><br>
-Variable name and key must be filled in!<br><br>
-Add rows to add variables.<br><br>
-For full key documentation, please see <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">here</a> <br><br>
-An empty visibility condition means that no if statement will be generated for it!<br><br>
-Use the test values to check for mesh visibility depending on your variable values and for any errors!<br><br>
-<b>Refreshing mesh names will not lose your conditions or variables!</b><br><br>
+            QMessageBox.information(self, "帮助", '''<html><center>
+<h2>高级组件切换助手：</h2>
+可选值默认值为0,1。<br><br>
+默认值为1。<br><br>
+变量名称和快捷键必须填写！<br><br>
+添加行以添加变量。<br><br>
+完整的快捷键文档请参考 <a href="https://forums.frontier.co.uk/attachments/edhm-hotkeys-pdf.343006/">这里</a> <br><br>
+空可见性条件表示不会为其生成if语句！<br><br>
+使用测试值根据变量值检查网格可见性并查找错误！<br><br>
+<b>刷新网格名称不会丢失您的条件或变量！</b><br><br>
 <br>
-Condition tips:<br>
-<b>Always start variables with $!</b><br>
-&& -> and<br>
-|| -> or<br>
-== -> Equals<br>
-!= -> Not equal<br>
-All math symbols: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=
-<h3>Expert mode controls:</h3>
-Drag and drop the rows to change mesh order.<br><br>
-There are 4 condition types: if, else if, else, and endif.<br><br>
-<b>if</b> is your normal if statement, with conditions. <br>USE THIS AT THE START OF YOUR COMPONENT BLOCKS.<br><br>
-<b>else if</b> is your alternative if statement, used as a secondary condition. <br>DO NOT START COMPONENT BLOCKS WITH THIS<br><br>
-<b>else</b> is for all other conditions. It has no conditions. <br>ONLY USE THIS AS YOUR LAST CONDITION IN COMPONENT BLOCKS.<br><br>
-<b>endif</b> writes only the endif after the mesh line. It has no conditions. <br>USE THIS AT THE END OF YOUR COMPONENT BLOCKS.<br><br>
-else and endif do not have conditions in any scenario.<br><br>
-endifs are not generated after each condition in this mode,<br>
-if you want to generate an endif please select the checkbox in endif included.<br><br>
-Templates do not support mesh reordering!<br>
+条件提示：<br>
+<b>变量始终以$开头！</b><br>
+&& -> 与<br>
+|| -> 或<br>
+== -> 等于<br>
+!= -> 不等于<br>
+所有数学符号: +,-,/,//,*,%,&lt;,&lt;=,&gt;,&gt;=
+<h3>专业模式控制：</h3>
+拖放行以更改网格顺序。<br><br>
+有4种条件类型：if, else if, else, 和 endif。<br><br>
+<b>if</b>是普通的if语句，带条件。<br>在组件块开头使用此类型。<br><br>
+<b>else if</b>是备用的if语句，用作次要条件。<br>不要以此开始组件块<br><br>
+<b>else</b>用于所有其他条件。没有条件。<br>仅在组件块中作为最后一个条件使用。<br><br>
+<b>endif</b>仅在网格行后写入endif。没有条件。<br>在组件块末尾使用此类型。<br><br>
+else和endif在任何情况下都没有条件。<br><br>
+在此模式下，每个条件后不会生成endif，<br>
+如果要生成endif，请在"包含endif"中选择复选框。<br><br>
+模板不支持网格重新排序！<br>
 </center></html>''')
 
     def add_row_table1(self, checked=False, default_name=""):
@@ -467,17 +467,17 @@ Templates do not support mesh reordering!<br>
         self.table1.setItem(row_pos, 4, QTableWidgetItem("0,1"))
         spin = QSpinBox()
         spin.setMinimum(0)
-        spin.setMaximum(999)  # or any max you want
+        spin.setMaximum(999)  # 或任意最大值
         spin.setValue(0)
         spin.valueChanged.connect(lambda value, row=row_pos: self.on_spinbox_changed(row, value))
-        self.table1.setCellWidget(row_pos, 5, spin)  # put spinner in column 0
+        self.table1.setCellWidget(row_pos, 5, spin)  # 将微调框放在第5列
         #active_item = QTableWidgetItem()
 
         #active_item.setCheckState(Qt.CheckState.Unchecked)  # default unchecked
         #active_item.setText("")
         #self.table1.setItem(row_pos, 4, active_item)  # checkbox column
 
-        self.set_readOnly(self.table1, 1)  # Re-apply readonly after adding a row
+        self.set_readOnly(self.table1, 1)  # 添加行后重新应用只读
         
 
     def remove_row_table1(self):
@@ -485,7 +485,7 @@ Templates do not support mesh reordering!<br>
         if selected >= 0:
             self.table1.removeRow(selected)
         else:
-            QMessageBox.warning(self, "No selection", "Please select a row to remove.")
+            QMessageBox.warning(self, "未选择", "请选择要删除的行。")
 
     def on_spinbox_changed(self, row, value):
         for i in range(self.table2.rowCount()):
@@ -518,7 +518,7 @@ Templates do not support mesh reordering!<br>
         #print(bad_variables)
         vars = []
         item.setBackground(QColor("#2D2D2D"))
-        item.setForeground(Qt.GlobalColor.white)      # White text (visible even when selected)
+        item.setForeground(Qt.GlobalColor.white)      # 白色文本（选中时也可见）
         test_variables= []
         for i in range(self.table1.rowCount()):
             test_variables.append(self.table1.item(i, 1).text().strip())
@@ -526,8 +526,8 @@ Templates do not support mesh reordering!<br>
             if variable.strip() not in test_variables:
                 #print("failure!")
                 item.setBackground(QColor("red"))
-                item.setForeground(QColor("white"))      # White text (visible even when selected)
-                self.table2.setItem(item.row(), 3, QTableWidgetItem("Error"))
+                item.setForeground(QColor("white"))      # 白色文本（选中时也可见）
+                self.table2.setItem(item.row(), 3, QTableWidgetItem("错误"))
                 self.table2.blockSignals(False)
                 return
             
@@ -536,8 +536,8 @@ Templates do not support mesh reordering!<br>
             if self.validate_condition(condition) is not None or len(bad_variables)!=0:
                 #print("failure!")
                 item.setBackground(QColor("red"))
-                item.setForeground(QColor("white"))      # White text (visible even when selected)
-                self.table2.setItem(item.row(), 3, QTableWidgetItem("Error"))
+                item.setForeground(QColor("white"))      # 白色文本（选中时也可见）
+                self.table2.setItem(item.row(), 3, QTableWidgetItem("错误"))
                 self.table2.blockSignals(False)
                 return
 
@@ -551,7 +551,7 @@ Templates do not support mesh reordering!<br>
                     vars.append((self.table1.item(i, 1).text(), val))
             if len(vars)!=0:
                 
-                so = self.parse_visibility_condition(condition, dict(vars))  # Output: True
+                so = self.parse_visibility_condition(condition, dict(vars))  # 输出: True
                 if so:
                     self.table2.setItem(item.row(), 3, QTableWidgetItem("True"))
                 else:
@@ -564,24 +564,24 @@ Templates do not support mesh reordering!<br>
         self.table2.blockSignals(False)
 
     def validate_condition(self, condition: str) -> str | None:
-        # Detect single = instead of ==
+        # 检测使用 = 而不是 ==
         if re.search(r'(?<![=!<>])=(?![=])', condition):
-            return "Use '==' for comparisons instead of '='."
+            return "请使用'=='进行比较而不是'='。"
 
-        # Detect single & or | instead of && or ||
+        # 检测使用 & 或 | 而不是 && 或 ||
         if re.search(r'(?<!&)&(?!&)', condition):
-            return "Use '&&' instead of '&'."
+            return "请使用'&&'而不是'&'。"
         if re.search(r'(?<!\|)\|(?!\|)', condition):
-            return "Use '||' instead of '|'."
+            return "请使用'||'而不是'|'。"
 
-        # Check parentheses balance
+        # 检查括号平衡
         if condition.count('(') != condition.count(')'):
-            return "Unmatched parentheses detected."
+            return "检测到未匹配的括号。"
 
-        # Detect two consecutive $variables with only whitespace between them
+        # 检测两个连续的$变量之间只有空白
         if re.search(r'\$[a-zA-Z_][a-zA-Z0-9_]*\s+\$[a-zA-Z_][a-zA-Z0-9_]*', condition):
-            return "Missing operator between two variables."
-        return None  # no error
+            return "两个变量之间缺少运算符。"
+        return None  # 无错误
 
 
     def set_readOnly(self, table, column):
@@ -594,23 +594,23 @@ Templates do not support mesh reordering!<br>
         if var_values is None:
             var_values = {}
 
-        # Find all $variables in the condition
+        # 在条件中查找所有$变量
         tokens = re.findall(r'\$[a-zA-Z0-9_]+', condition)
 
-        # Replace them with values (default to 1 if not provided)
+        # 替换为值（如果未提供则默认为1）
         for token in tokens:
             var_name = token
-            value = var_values.get(var_name, 1)  # assume 1 if not in dict
+            value = var_values.get(var_name, 1)  # 如果不在字典中则假设为1
             #print(value)
             condition = condition.replace(token, str(value))
 
-        # Replace logical operators with Python equivalents
+        # 将逻辑运算符替换为Python等价物
         condition = condition.replace('&&', 'and').replace('||', 'or')
 
         try:
             result = eval(condition)
         except Exception as e:
-            print(f"Failed to evaluate condition: {condition}\nError: {e}")
+            print(f"评估条件失败: {condition}\n错误: {e}")
             result = False
 
         return result
@@ -618,7 +618,7 @@ Templates do not support mesh reordering!<br>
     def update_ini(self):
         global lines
         global filepath
-        print("filepath: " + filepath)
+        print("文件路径: " + filepath)
         match = re.search(r'^.*[\\/]', filepath)
         filename = match.group(0) if match else ''
         print(filename)
@@ -627,8 +627,8 @@ Templates do not support mesh reordering!<br>
         print(filename)
         if os.path.exists(filename):
             reply = QMessageBox.question(
-            self, "Overwrite File?",
-            f"The file '{filename}' already exists.\nDo you want to overwrite it?\nA warning that this application bases itself off the backup when generating",
+            self, "覆盖文件?",
+            f"文件'{filename}'已存在。\n是否要覆盖它?\n警告：此应用程序基于备份生成",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
             )
             if reply == QMessageBox.StandardButton.Yes:
@@ -644,9 +644,9 @@ Templates do not support mesh reordering!<br>
             with open(filename) as file2:
                 lines = file2.readlines()
         except FileNotFoundError:
-            print(f"Error: '{filename}' not found.")
+            print(f"错误: 未找到'{filename}'")
         partscounter = 0
-        # Create variables for saving
+        # 创建用于保存的变量
         variables = []
         toggles = []
         defaults = []
@@ -679,7 +679,7 @@ Templates do not support mesh reordering!<br>
         check = self.verify_outputs()
         #print(check)
         if check !="":
-            self.show_error(check+"\nGeneration cancelled!")
+            self.show_error(check+"\n生成已取消！")
             return
 
         global toggleWrite
@@ -826,9 +826,9 @@ Templates do not support mesh reordering!<br>
     def verify_outputs(self):
         for i in range(self.table1.rowCount()):
             if self.table1.item(i, 2) is None or self.table1.item(i,0).text() == "":
-                return "Empty variable name values!"
+                return "变量名称值为空！"
             if self.table1.item(i, 2) is None or self.table1.item(i,2).text() == "":
-                return "Missing toggle keys!"
+                return "缺少快捷键！"
             
         for i in range(self.table2.rowCount()):
             if self.table2.item(i, 2) is not None:
@@ -840,24 +840,24 @@ Templates do not support mesh reordering!<br>
                     test_variables.append(self.table1.item(i, 1).text().strip())
                 for variable in variables:
                     if variable.strip() not in test_variables:
-                        return "Error in conditions!"
+                        return "条件中存在错误！"
                     
                     
                 if self.validate_condition(condition) is not None or len(bad_variables)!=0:
-                    return "Error in conditions!"
+                    return "条件中存在错误！"
         return ""
     
     def show_error(self, message: str):
         QMessageBox.critical(
             self,
-            "Error",
+            "错误",
             message,
             QMessageBox.StandardButton.Ok
         )
 
     def refresh_mesh_names(self):
         global charaparts, existing_conditions
-        # Re-extract mesh names
+        # 重新提取网格名称
         charaparts.clear()
         print("refreshing")
         conditions=[]
@@ -872,10 +872,10 @@ Templates do not support mesh reordering!<br>
         #print(charaparts)
         self.table2.blockSignals(True)
 
-        # Clear existing table2 content
+        # 清除现有表格2内容
         self.table2.setRowCount(0)
         self.table2.setRowCount(len(charaparts))
-        self.table2.setHorizontalHeaderLabels(["Mesh Name", "Ini Name", "Visibility Condition", "Visible"])
+        self.table2.setHorizontalHeaderLabels(["网格名称", "INI名称", "可见性条件", "可见"])
         chk = 0
         for i, mesh_name in enumerate(charaparts):
             self.table2.setItem(i, 0, QTableWidgetItem(mesh_name))
@@ -899,7 +899,7 @@ Templates do not support mesh reordering!<br>
     def open_ini_file(self):
         global file_name, charaname, lines, charaparts, existing_conditions, existing_variables, existing_defaults, existing_keys, existing_values, filepath
 
-        new_file, _ = QFileDialog.getOpenFileName(self, "Open INI File", "", "INI Files (*.ini)")
+        new_file, _ = QFileDialog.getOpenFileName(self, "打开INI文件", "", "INI文件 (*.ini)")
         #file=new_file.name
         if new_file:
             #print(new_file)
@@ -908,10 +908,10 @@ Templates do not support mesh reordering!<br>
                     filepath=f.name
                     lines = f.readlines()
             except FileNotFoundError:
-                QMessageBox.warning(self, "File Error", "Selected file could not be read.")
+                QMessageBox.warning(self, "文件错误", "无法读取所选文件。")
                 return
 
-            # Update globals
+            # 更新全局变量
             file_name = new_file
             match = re.search(r'[^\\/]+(?=\.ini$)', file_name, re.IGNORECASE)
             print(charaname)
@@ -926,7 +926,7 @@ Templates do not support mesh reordering!<br>
             existing_combo_values.clear()
             existing_endifs.clear()
 
-            # Re-extract everything
+            # 重新提取所有内容
             extract_charaparts_from_ini()
             #existing_conditions.extend(existing_conditions_tmp)
             #print(existing_conditions)
@@ -939,7 +939,7 @@ Templates do not support mesh reordering!<br>
 
 
 # ------------------------------
-# Main entry point
+# 主入口点
 # ------------------------------
 
 def find_file():
@@ -951,7 +951,7 @@ def find_file():
 
     charaname = match.group(0) if match else None
     if not file_name:
-        print("No .ini file found.")
+        print("未找到.ini文件。")
 
     
     try:
@@ -960,7 +960,7 @@ def find_file():
             #print(file2.name)
             lines = file2.readlines()
     except FileNotFoundError:
-        print(f"Error: '{file_name}' not found.")
+        print(f"错误: 未找到'{file_name}'")
 def extract_charaparts_from_ini():
     global file_name, charaname, lines, charaparts, existing_conditions, existing_variables, existing_defaults, existing_keys, existing_values, existing_combo_values, existing_endifs
     searching = False
@@ -1009,7 +1009,7 @@ def extract_charaparts_from_ini():
             hasActive = True
     return charaparts
 
-# Run the app
+# 运行应用程序
 if __name__ == "__main__":
     file_name = next(
         (file for file in glob.glob("*.ini")
@@ -1020,14 +1020,14 @@ if __name__ == "__main__":
     #charaname = file_name[:-4]  
     if not file_name:
         root = tk.Tk()
-        root.withdraw()  # Hide the main tkinter window
+        root.withdraw()  # 隐藏主tkinter窗口
         file_name = filedialog.askopenfilename(
-            title="Select an INI file",
-            filetypes=[("INI files", "*.ini")]
+            title="选择INI文件",
+            filetypes=[("INI文件", "*.ini")]
         )
         root.destroy()
-        if not file_name:  # User cancelled the dialog
-            print("No .ini file selected.")
+        if not file_name:  # 用户取消对话框
+            print("未选择.ini文件。")
             
 
     match = re.search(r'[^\\/]+(?=\.ini$)', file_name, re.IGNORECASE)
@@ -1040,7 +1040,7 @@ if __name__ == "__main__":
             print(file2.name)
             lines = file2.readlines()
     except FileNotFoundError:
-        print(f"Error: '{file_name}' not found.")
+        print(f"错误: 未找到'{file_name}'")
     app = QApplication([])
     charaparts = extract_charaparts_from_ini()
     editor = CharacterPartsEditor(charaparts, existing_conditions, existing_variables, existing_defaults)
