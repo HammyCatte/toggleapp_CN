@@ -644,12 +644,13 @@ else和endif在任何情况下都没有条件。<br><br>
         filename = filename+f'DISABLED_BACKUPNOTOGGLE_{charaname}.ini'
         print(filename)
         if os.path.exists(filename):
-            reply = QMessageBox.question(
-            self, "覆盖文件?",
-            f"文件'{filename}'已存在。\n是否要覆盖它?\n警告：此应用程序基于备份生成",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
-            if reply == QMessageBox.StandardButton.Yes:
+            msgBox = QMessageBox(self)
+            msgBox.setWindowTitle("覆盖文件?")
+            msgBox.setText(f"文件'{filename}'已存在。\n是否覆盖?\n警告：此工具基于备份生成ini")
+            yesButton = msgBox.addButton("是", QMessageBox.ButtonRole.AcceptRole)
+            noButton = msgBox.addButton("否", QMessageBox.ButtonRole.RejectRole)
+            msgBox.exec()
+            if msgBox.clickedButton() == yesButton:
                 with open(filename, "w", encoding="utf-8") as file2:
                     for i, line in enumerate(lines):      
                         file2.write(line)
